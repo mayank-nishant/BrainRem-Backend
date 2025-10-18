@@ -11,7 +11,7 @@ import { userMiddleware } from "./middleware.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 const app = express();
@@ -31,8 +31,8 @@ const contentSchema = z.object({
   title: z.string().optional(),
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port : ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port: ${PORT}`);
 });
 
 app.post("/api/v1/signup", async (req: Request, res: Response) => {
