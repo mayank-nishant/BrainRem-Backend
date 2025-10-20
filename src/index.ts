@@ -15,8 +15,8 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
 await connectDB();
 
