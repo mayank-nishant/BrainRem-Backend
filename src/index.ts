@@ -15,7 +15,15 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4000;
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(express.json());
 
 await connectDB();
@@ -26,9 +34,10 @@ const userSchema = z.object({
 });
 
 const contentSchema = z.object({
-  link: z.url(),
+  link: z.url().optional(),
   type: z.string().min(1),
-  title: z.string().optional(),
+  title: z.string(),
+  note: z.string().optional(),
 });
 
 app.listen(PORT, "0.0.0.0", () => {
@@ -67,10 +76,11 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
 
 app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
   try {
-    const { link, type, title } = contentSchema.parse(req.body);
+    const { link, type, title, note } = contentSchema.parse(req.body);
     await ContentModel.create({
       link,
       type,
+      note,
       title: title || "Untitled",
       userId: req.userId,
       tags: [],
