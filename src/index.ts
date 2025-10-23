@@ -108,6 +108,39 @@ app.delete("/api/v1/content", userMiddleware, async (req: Request, res: Response
   }
 });
 
+app.put("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { contentId, link, type, title, note } = req.body;
+
+    if (!contentId) {
+      return res.status(400).json({ message: "Content ID is required for update" });
+    }
+
+    contentSchema.parse({ link, type, title, note });
+
+    const updated = await ContentModel.findOneAndUpdate(
+      { _id: contentId, userId: req.userId },
+      {
+        $set: {
+          link,
+          type,
+          title: title || "Untitled",
+          note,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Content not found or unauthorized" });
+    }
+
+    res.json({ message: "Content updated successfully", updated });
+  } catch (e: any) {
+    res.status(400).json({ message: `Error: ${e.message}` });
+  }
+});
+
 app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Response) => {
   try {
     const { share } = req.body;
